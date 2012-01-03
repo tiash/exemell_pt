@@ -363,10 +363,10 @@ findBlocks(URI) ->
         Tag = asAtom(?debug(proplists:get_value(tag,Module:module_info(attributes),asBin(Module)))),
         ?debug(Tag),
         case erlang:function_exported(Module,xml_blob,3) of
-          true -> #block{name=Module,rule=Tag,module=Module,mode=blob};
+          true -> #block{name=Module,rule=Tag,module=Module};
           _ ->
             case erlang:function_exported(Module,xml_child,3) andalso erlang:function_exported(Module,xml_end,2) of
-              true -> #block{name=Module,rule=Tag,module=Module,mode=children};
+              true -> #block{name=Module,rule=Tag,module=Module};
               _ -> []
             end
         end;
