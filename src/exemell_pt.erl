@@ -93,10 +93,10 @@ child_opts(accum,Child) -> Child#child{mode=accum};
 child_opts(notag,Child) -> child_opts({getter,getter(Child)},Child);
 child_opts({tag,Tag},Child) -> child_opts({gettern,[{tag,Tag},getter(Child)]},Child);
 child_opts({rule,Rule},Child) -> Child#child{rule=Rule};
-child_opts({getter,Getter},Child) -> Child#child{getter=asFun(Getter)};
-child_opts({setter,Setter},Child) -> Child#child{setter=asFun(Setter)};
+child_opts({getter,Getter},Child) -> Child#child{getter=(Getter)};
+child_opts({setter,Setter},Child) -> Child#child{setter=(Setter)};
 child_opts({module,Module},Child) -> child_opts({extern,{Module,'xml'}},Child);
-child_opts({extern,EXTERN},Child) -> Child#child{extern=asFun(EXTERN)};
+child_opts({extern,EXTERN},Child) -> Child#child{extern=(EXTERN)};
 child_opts({selector,SEL},Child) -> Child#child{selector=SEL};
 child_opts({element,N},Child) -> child_opts({selector,[N]},Child);
 child_opts([],Child) -> Child;
@@ -107,8 +107,8 @@ child_opts(_,Child) -> Child.
 -record(inner_xml,{name,setter,getter}).
 inner_xml({Name,Options}) -> inner_xml_opts([{setter,inner_xml},{getter,inner_xml},{tag,Name}]++Options,#inner_xml{name=asAtom(Name)});
 inner_xml(Name) -> inner_xml({Name,[]}).
-inner_xml_opts({getter,Getter},InnerXML) -> InnerXML#inner_xml{getter=asFun(Getter)};
-inner_xml_opts({setter,Setter},InnerXML) -> InnerXML#inner_xml{setter=asFun(Setter)};
+inner_xml_opts({getter,Getter},InnerXML) -> InnerXML#inner_xml{getter=(Getter)};
+inner_xml_opts({setter,Setter},InnerXML) -> InnerXML#inner_xml{setter=(Setter)};
 inner_xml_opts([],InnerXML) -> InnerXML;
 inner_xml_opts([H|T],InnerXML) -> inner_xml_opts(T,inner_xml_opts(H,InnerXML));
 inner_xml_opts(A,Options) when is_atom(A) -> inner_xml_opts({A,true},Options);
