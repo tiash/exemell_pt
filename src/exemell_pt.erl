@@ -105,7 +105,7 @@ child_opts(A,Options) when is_atom(A) -> child_opts({A,true},Options);
 child_opts(_,Child) -> Child.
 
 -record(inner_xml,{name,setter,getter}).
-inner_xml({Name,Options}) -> inner_xml_opts([{setter,inner_xml},{getter,inner_xml},{tag,Name}]++Options,#inner_xml{name=asAtom(Name)});
+inner_xml({Name,Options}) -> inner_xml_opts([{setter,Name},{getter,Name}]++Options,#inner_xml{name=asAtom(Name)});
 inner_xml(Name) -> inner_xml({Name,[]}).
 inner_xml_opts({getter,Getter},InnerXML) -> InnerXML#inner_xml{getter=(Getter)};
 inner_xml_opts({setter,Setter},InnerXML) -> InnerXML#inner_xml{setter=(Setter)};
