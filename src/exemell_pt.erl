@@ -144,8 +144,8 @@ xml_opts(_,Options) -> Options.
 
 parse_transform(Forms0,_Options) ->
   
-  % Forms1 = ?forms(Forms0),
-  Forms1 = Forms0,
+  Forms1 = erl_syntax:form_list(lists:flatten([Forms0])),
+  % Forms1 = Forms0,
   Module = getModule(Forms1),
   Namespace = getNamespace(Forms1),
   Tag = getTag(Forms1),
@@ -441,92 +441,129 @@ rule_code(Rule,Value) -> ?eq(Value,?abstract(Rule)).
 
 
 getModule(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {module,A} -> {done,Accum++[A]};
-            _ -> done
-          end;
-        _ -> done end end,
-  case syntax_fold(Function, Forms,[]) of
-    {_,[Module]} -> Module
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {module,A} -> Accum++[A];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  case erl_syntax_lib:fold(Function,[],Forms) of
+    [Module] -> Module
   end.
 
 getNamespace(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {xmlns,{xmlns,A}} -> {done,Accum++[A]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  case syntax_fold(Function, Forms,[]) of
-    {_,[NS]} -> NS;
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {xmlns,{xmlns,A}} -> Accum++[A];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  case erl_syntax_lib:fold(Function,[],Forms) of
+    [NS] -> NS;
     _ -> none
   end.
 
 getTag(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {tag,{tag,A}} -> {done,Accum++[tag(A)]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  case syntax_fold(Function, Forms,[]) of
-    {_,[]} -> asBin(getModule(Forms));
-    {_,[Tag]} -> Tag
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {tag,{tag,A}} -> Accum++[tag(A)];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  case erl_syntax_lib:fold(Function,[],Forms) of
+    [Tag] -> Tag;
+    _ -> asBin(getModule(Forms))
   end.
 
 getAttributes(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {attribute,{attribute,A}} -> {done,Accum++[attribute(A)]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  {_,Result} = syntax_fold(Function, Forms,[]),
-  Result.
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {attribute,{attribute,A}} -> Accum++[attribute(A)];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  erl_syntax_lib:fold(Function,[],Forms).
 
 getChildren(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {child,{child,A}} -> {done,Accum++[child(A)]};
-            {children,{children,A}} -> {done,Accum++[children(A)]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  {_,Result} = syntax_fold(Function, Forms,[]),
-  Result.
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {child,{child,A}} -> Accum++[child(A)];
+                {children,{children,A}} -> Accum++[children(A)];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  erl_syntax_lib:fold(Function,[],Forms).
 
 getInnerXML(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {inner_xml,{inner_xml,A}} -> {done,Accum++[inner_xml(A)]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  case syntax_fold(Function, Forms,[]) of
-    {_,[]} -> undefined;
-    {_,[Result]} -> Result
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {inner_xml,{inner_xml,A}} -> Accum++[inner_xml(A)];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  case erl_syntax_lib:fold(Function,[],Forms)  of
+    [Result] -> Result;
+    _ -> undefined
   end.
 
 getBlocks(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {block,{block,A}} -> {done,Accum++[block(A)]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  {_,Result} = syntax_fold(Function, Forms,[]),
-  Result.
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {block,{block,A}} -> Accum++[block(A)];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  erl_syntax_lib:fold(Function,[],Forms).
 
 getXMLOpts(Forms) -> 
-  Function = fun (F,Accum) -> case erl_syntax:type(F) of attribute ->
-          case erl_syntax_lib:analyze_attribute(F) of
-            {xml_opts,{xml_opts,A}} when is_list(A) -> {done,Accum++A};
-            {xml_opts,{xml_opts,A}} -> {done,Accum++[A]};
-            _ -> done
-          end;
-        _ -> skip end end,
-  {_,Result} = syntax_fold(Function, Forms,[]),
+ Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            attribute ->
+              case erl_syntax_lib:analyze_attribute(F) of
+                {xml_opts,{xml_opts,A}} when is_list(A) -> Accum++A;
+                {xml_opts,{xml_opts,A}} -> Accum++[A];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  Result = erl_syntax_lib:fold(Function,[],Forms),
   xml_opts(
     case getChildren(Forms) of
       [] -> []; _ -> [exemell_block]
@@ -544,13 +581,21 @@ getXMLOpts(Forms) ->
   ).
 
 getFunction(Name,Arity,Forms) ->
-  Function = fun (F,undefined) -> case erl_syntax:type(F) of function ->
-          case erl_syntax_lib:analyze_function(F) of
-            {Name,Arity} -> {done,F};
-            _ -> done
-          end; _ -> skip end end,
-  {_,Result} = syntax_fold(Function,Forms,undefined),
-  Result.
+  Function =
+    fun (F,Accum) ->
+          case erl_syntax:type(F) of
+            function ->
+              case erl_syntax_lib:analyze_function(F) of
+                {Name,Arity} -> Accum ++ [F];
+                _ -> Accum
+              end;
+            _ -> Accum
+          end
+    end,
+  case erl_syntax_lib:fold(Function,[],Forms) of
+    [Fun] -> Fun;
+    _ -> undefined
+  end.
   
 
 

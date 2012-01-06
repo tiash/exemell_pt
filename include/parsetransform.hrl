@@ -62,9 +62,9 @@
 -define(ANDALSO(A,B),?infix(A,'andalso',B)).
 -define(OR(A,B),?infix(A,'or',B)).
 -define(ORELSE(A,B),?infix(A,'orelse',B)).
+-define(nif_not(VALUE),erl_syntax:prefix_expr(erl_syntax:operator('not'),VALUE)).
 
 -define(nif_element(N,VALUE),?apply('element',[?int(N),VALUE])).
--define(nif_not(VALUE),?apply('not',[VALUE])).
 -define(nif_size(VALUE),?apply('size',[VALUE])).
 -define(nif_is_tuple(VALUE),?apply('is_tuple',[VALUE])).
 
