@@ -195,7 +195,7 @@ parse_transform(Forms0,_Options) ->
     insert_at_end(insert_in_head(Forms2,[?export(xml_blob,3)]),
       ?function(xml_blob,
         [ ?clause([?var('Body'),?var('Self'),?var('State')],none,
-            [setter_code(InnerXML,?var('Body'),?var('Self'))])
+            [?tuple([setter_code(InnerXML,?var('Body'),?var('Self')),?var('State')])])
         ])) end,
     Forms32 = case getFunction(xml_block,4,Forms31) of __A12 when __A12=/=undefined -> Forms31; _ ->
     insert_at_end(insert_in_head(Forms31,[?export(xml_block,4)]),
