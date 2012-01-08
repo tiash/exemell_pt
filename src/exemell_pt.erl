@@ -30,9 +30,8 @@
 
 -export([parse_transform/2]).
 
--ifndef(DEBUG).
--define(DEBUG,true).
--endif.
+-undef(DEBUG).
+% -define(DEBUG,true).
 
 -include("debug.hrl").
 -include_lib("exemell/include/exemell.hrl").
