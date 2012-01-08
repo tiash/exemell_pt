@@ -35,5 +35,6 @@
   %% don't register anything since we don't actually want to include ths in shiping code
   {applications, []},
   {mod, []},
+  {applications, [kernel,stdlib,compiler,syntax_tools]},
   {env, []}
  ]}.
